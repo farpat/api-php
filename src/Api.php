@@ -39,8 +39,7 @@ class Api
     {
         $ch = curl_init($this->url . $endPoint);
 
-        $options = $this->generateOptions($method, $data, $headers);
-        curl_setopt_array($ch, $options);
+        curl_setopt_array($ch, $this->generateOptions($method, $data, $headers));
 
         $response = curl_exec($ch);
 
@@ -89,6 +88,10 @@ class Api
 
         if ($this->pathToCertificat) {
             $options[CURLOPT_CAINFO] =  $this->pathToCertificat;
+        }
+        else {
+            $options[CURLOPT_SSL_VERIFYHOST] = 0;
+            $options[CURLOPT_SSL_VERIFYPEER] = 0;
         }
 
         return $options;
