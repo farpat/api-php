@@ -7,7 +7,9 @@ use stdClass;
 
 class Api
 {
-    private $url = '';
+    private $url = '/';
+
+    private $pathToCertificat = '';
 
     /**
      * @param string $endPoint
@@ -35,13 +37,9 @@ class Api
      */
     private function api (string $endPoint, string $method, array $data = [], array $headers = [])
     {
-        $ch = curl_init();
+        $ch = curl_init($this->url . $endPoint);
 
-        if ($endPoint[0] !== '/') {
-            $endPoint = '/' . $endPoint;
-        }
-
-        $options = $this->generateOptions(($this->url ?? '') . $endPoint, $method, $data, $headers);
+        $options = $this->generateOptions($method, $data, $headers);
         curl_setopt_array($ch, $options);
 
         $response = curl_exec($ch);
@@ -66,17 +64,15 @@ class Api
     }
 
     /**
-     * @param string $endPoint
      * @param string $method
      * @param array $data
      * @param array $headers
      *
      * @return array
      */
-    private function generateOptions (string $endPoint, string $method, array $data, array $headers): array
+    private function generateOptions (string $method, array $data, array $headers): array
     {
         $options = [
-            CURLOPT_URL => $endPoint,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => $headers
         ];
@@ -91,8 +87,9 @@ class Api
                 break;
         }
 
-        $options[CURLOPT_SSL_VERIFYHOST] = false;
-        $options[CURLOPT_SSL_VERIFYPEER] = false;
+        if ($this->pathToCertificat) {
+            $options[CURLOPT_CAINFO] =  $this->pathToCertificat;
+        }
 
         return $options;
     }
@@ -128,8 +125,11 @@ class Api
     /**
      * @param string $endpoint
      *
+     * @param array $headers
+     *
      * @return stdClass|array
-     * @throws CurlException|ApiException
+     * @throws ApiException
+     * @throws CurlException
      */
     public function get (string $endpoint, array $headers = [])
     {
@@ -148,21 +148,29 @@ class Api
     }
 
     /**
-     * @return string
-     */
-    public function getUrl (): string
-    {
-        return $this->url;
-    }
-
-    /**
      * @param string $url
      *
      * @return Api
      */
     public function setUrl (string $url): Api
     {
-        $this->url = $url[-1] === '/' ? substr($url, 0, -1) : $url;
+        $this->url = $url[-1] === '/' ? $url : $url . '/';
         return $this;
     }
+
+    /**
+     * @param string $pathToCertificat path/to/cert.cer
+     *
+     * @return Api
+     * @throws ApiException
+     */
+    public function setPathToCertificat (string $pathToCertificat): Api
+    {
+        if (!is_file($pathToCertificat)) {
+            throw new ApiException('The certificat path << ' . $pathToCertificat. ' >> does not exist!');
+        }
+
+        $this->pathToCertificat = $pathToCertificat;
+        return $this;
+}
 }
