@@ -41,25 +41,19 @@ class Api
 
         curl_setopt_array($ch, $this->generateOptions($method, $data, $headers));
 
-        $response = curl_exec($ch);
-
-        if ($error = curl_error($ch)) {
-            throw new CurlException($error, curl_errno($ch));
+        if (!($response = curl_exec($ch))) {
+            throw new CurlException(curl_error($ch), curl_errno($ch));
         }
 
         curl_close($ch);
 
-        $response = json_decode($response);
+        $data = json_decode($response);
 
-        if (empty($response)) {
-            return (object)[];
+        if (empty($data)) {
+            return null;
         }
 
-        if (isset($response->error)) {
-            throw new ApiException($response->error);
-        }
-
-        return $response;
+        return $data;
     }
 
     /**
