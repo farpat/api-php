@@ -17,7 +17,7 @@ class Api
      *
      * @param array $headers
      *
-     * @return stdClass|array
+     * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
     public function post (string $endPoint, array $data, array $headers = [])
@@ -32,7 +32,7 @@ class Api
      *
      * @param array $headers
      *
-     * @return stdClass|array
+     * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
     private function api (string $endPoint, string $method, array $data = [], array $headers = [])
@@ -97,7 +97,7 @@ class Api
      *
      * @param array $headers
      *
-     * @return array|stdClass
+     * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
     public function put (string $endPoint, array $data, array $headers = [])
@@ -111,10 +111,10 @@ class Api
      *
      * @param array $headers
      *
-     * @return stdClass
+     * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
-    public function patch (string $endPoint, array $data, array $headers = []): stdClass
+    public function patch (string $endPoint, array $data, array $headers = [])
     {
         return $this->api($endPoint, 'PATCH', $data, $headers);
     }
@@ -124,7 +124,7 @@ class Api
      *
      * @param array $headers
      *
-     * @return stdClass|array
+     * @return stdClass|array|null
      * @throws ApiException
      * @throws CurlException
      */
@@ -136,12 +136,12 @@ class Api
     /**
      * @param string $endpoint
      *
-     * @return stdClass|array
+     * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
-    public function delete (string $endpoint)
+    public function delete (string $endpoint, array $headers = [])
     {
-        return $this->api($endpoint, 'DELETE');
+        return $this->api($endpoint, 'DELETE', [], $headers);
     }
 
     /**
