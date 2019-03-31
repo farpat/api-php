@@ -1,7 +1,7 @@
 language: php
 
 php:
-  - 7.1
+  - 7.2
 
 install:
   - composer selfupdate
@@ -9,6 +9,3 @@ install:
 
 script:
   - ./vendor/bin/phpunit
-
-after_success:
-  - travis_retry php vendor/bin/coveralls
