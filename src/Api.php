@@ -3,12 +3,10 @@
 namespace Farrugia\Api;
 
 
-use Exception;
 use stdClass;
 
 class Api
 {
-    private $secret = null;
     private $url = '';
 
     /**
@@ -83,11 +81,6 @@ class Api
             CURLOPT_HTTPHEADER => $headers
         ];
 
-        if ($this->secret) {
-            $options[CURLOPT_USERPWD] = $this->secret;
-            $options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
-        }
-
         switch ($method) {
             case 'POST':
             case 'PUT':
@@ -138,9 +131,9 @@ class Api
      * @return stdClass|array
      * @throws CurlException|ApiException
      */
-    public function get (string $endpoint)
+    public function get (string $endpoint, array $headers = [])
     {
-        return $this->api($endpoint, 'GET');
+        return $this->api($endpoint, 'GET', [], $headers);
     }
 
     /**
@@ -152,25 +145,6 @@ class Api
     public function delete (string $endpoint)
     {
         return $this->api($endpoint, 'DELETE');
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getSecret (): ?string
-    {
-        return $this->secret;
-    }
-
-    /**
-     * @param string $secret
-     *
-     * @return Api
-     */
-    public function setSecret (string $secret): self
-    {
-        $this->secret = $secret;
-        return $this;
     }
 
     /**
