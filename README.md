@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/farpat/api.svg?branch=master)](https://travis-ci.org/farpat/api)
+
 # Installation
 The project is not subscribed on packagist. You must add this repository into composer.json
 ```json
