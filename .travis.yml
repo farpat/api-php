@@ -1,0 +1,14 @@
+language: php
+
+php:
+  - 7.1
+
+install:
+  - composer selfupdate
+  - composer install
+
+script:
+  - ./vendor/bin/phpunit
+
+after_success:
+  - travis_retry php vendor/bin/coveralls
