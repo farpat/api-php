@@ -18,7 +18,7 @@ class Api
      * @param array $headers
      *
      * @return stdClass|array
-     * @throws Exception
+     * @throws CurlException|ApiException
      */
     public function post (string $endPoint, array $data, array $headers = [])
     {
@@ -33,7 +33,7 @@ class Api
      * @param array $headers
      *
      * @return stdClass|array
-     * @throws Exception
+     * @throws CurlException|ApiException
      */
     private function api (string $endPoint, string $method, array $data = [], array $headers = [])
     {
@@ -47,13 +47,12 @@ class Api
         curl_setopt_array($ch, $options);
 
         $response = curl_exec($ch);
-        $error = curl_error($ch);
+
+        if ($error = curl_error($ch)) {
+            throw new CurlException($error, curl_errno($ch));
+        }
 
         curl_close($ch);
-
-        if ($error !== '') {
-            throw new Exception('CURL ERROR => ' . $error);
-        }
 
         $response = json_decode($response);
 
@@ -62,7 +61,7 @@ class Api
         }
 
         if (isset($response->error)) {
-            throw new Exception('CURL RESPONSE ERROR => ' . $response->error);
+            throw new ApiException($response->error);
         }
 
         return $response;
@@ -112,7 +111,7 @@ class Api
      * @param array $headers
      *
      * @return array|stdClass
-     * @throws Exception
+     * @throws CurlException|ApiException
      */
     public function put (string $endPoint, array $data, array $headers = [])
     {
@@ -126,7 +125,7 @@ class Api
      * @param array $headers
      *
      * @return stdClass
-     * @throws Exception
+     * @throws CurlException|ApiException
      */
     public function patch (string $endPoint, array $data, array $headers = []): stdClass
     {
@@ -137,7 +136,7 @@ class Api
      * @param string $endpoint
      *
      * @return stdClass|array
-     * @throws Exception
+     * @throws CurlException|ApiException
      */
     public function get (string $endpoint)
     {
@@ -148,7 +147,7 @@ class Api
      * @param string $endpoint
      *
      * @return stdClass|array
-     * @throws Exception
+     * @throws CurlException|ApiException
      */
     public function delete (string $endpoint)
     {

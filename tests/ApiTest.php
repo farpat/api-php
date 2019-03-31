@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Exception;
 use Farrugia\Api\Api;
+use Farrugia\Api\CurlException;
 use PHPUnit\Framework\TestCase;
 
 class ApiTest extends TestCase
@@ -17,7 +17,7 @@ class ApiTest extends TestCase
     /** @test */
     public function get_with_wrong_url ()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CurlException::class);
         $this->api
             ->setUrl('httpd//jsonplaceholder.typicode.com')
             ->get('posts/1');
@@ -47,7 +47,7 @@ class ApiTest extends TestCase
     /** @test */
     public function postDataWithWrongUrl ()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CurlException::class);
         $this->api
             ->setUrl('httpsd//jsonplaceholder.typicode.com')
             ->post('posts', [
@@ -74,7 +74,7 @@ class ApiTest extends TestCase
     /** @test */
     public function putDataWithWrongUrl ()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(CurlException::class);
         $this->api
             ->setUrl('httpsd//jsonplaceholder.typicode.com/')
             ->put('posts/1', [
