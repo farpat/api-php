@@ -9,7 +9,16 @@ class Api
 {
     private $url = '/';
 
-    private $pathToCertificat = '';
+    /**
+     * @var string|null
+     */
+    private $pathToCertificat = null;
+
+    /**
+     * @var array|null
+     * [type, token]
+     */
+    private $token = null;
 
     /**
      * @param string $endPoint
@@ -80,7 +89,12 @@ class Api
                 break;
         }
 
-        if ($this->pathToCertificat) {
+        if (!is_null($this->token)) {
+            [$type, $token] = $this->token;
+            $options[CURLOPT_HEADER][] = "Authorization: $type $token";
+        }
+
+        if (!is_null($this->pathToCertificat)) {
             $options[CURLOPT_CAINFO] =  $this->pathToCertificat;
         }
         else {
@@ -156,18 +170,36 @@ class Api
     }
 
     /**
-     * @param string $pathToCertificat path/to/cert.cer
+     * @param string|null $pathToCertificat path/to/cert.cer
      *
      * @return Api
      * @throws ApiException
      */
-    public function setPathToCertificat (string $pathToCertificat): Api
+    public function setPathToCertificat (?string $pathToCertificat): Api
     {
-        if (!is_file($pathToCertificat)) {
+        if (!is_null($pathToCertificat) && !is_file($pathToCertificat)) {
             throw new ApiException('The certificat path << ' . $pathToCertificat. ' >> does not exist!');
         }
 
         $this->pathToCertificat = $pathToCertificat;
+        return $this;
+}
+
+    /**
+     * @param string|null $token
+     *
+     * @param string $type
+     *
+     * @return Api
+     */
+    public function setToken (?string $token, string $type = 'BASIC'): Api
+    {
+        if (!is_null($token)) {
+            $this->token = [$type, $token];
+        }
+        else {
+            $this->token = null;
+        }
         return $this;
 }
 }
