@@ -91,7 +91,7 @@ class Api
 
         if (!is_null($this->token)) {
             [$type, $token] = $this->token;
-            $options[CURLOPT_HEADER][] = "Authorization: $type $token";
+            $options[CURLOPT_HTTPHEADER][] = "Authorization: $type $token";
         }
 
         if (!is_null($this->pathToCertificat)) {

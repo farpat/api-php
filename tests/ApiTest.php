@@ -157,7 +157,44 @@ class ApiTest extends TestCase
 
         $options = $method->invokeArgs($api, ['GET', [], []]);
 
-        $this->assertTrue(in_array('Authorization: BEARER token', $options[CURLOPT_HEADER]));
+        $this->assertTrue(in_array('Authorization: BEARER token', $options[CURLOPT_HTTPHEADER]));
+    }
+
+    /** @test */
+    public function test_no_set_path_to_certificat ()
+    {
+        $api = (new Api())->setPathToCertificat(null);
+
+        $reflectionApi = new ReflectionClass(Api::class);
+        $method = $reflectionApi->getMethod('generateOptions');
+        $method->setAccessible(true);
+
+        $options = $method->invokeArgs($api, ['GET', [], []]);
+
+        $this->assertEquals(0, $options[CURLOPT_SSL_VERIFYHOST]);
+        $this->assertEquals(0, $options[CURLOPT_SSL_VERIFYPEER]);
+    }
+
+    /** @test */
+    public function test_no_set_token ()
+    {
+        $api = (new Api())->setToken(null);
+
+        $reflectionApi = new ReflectionClass(Api::class);
+        $method = $reflectionApi->getMethod('generateOptions');
+        $method->setAccessible(true);
+
+        $options = $method->invokeArgs($api, ['GET', [], []]);
+
+        $authorizationHeaderIsPresent = false;
+        foreach($options[CURLOPT_HTTPHEADER] as $header) {
+            if (strpos($header, 'Authorization:')) {
+            $authorizationHeaderIsPresent = true;
+            break;
+            }
+        }
+
+        $this->assertFalse($authorizationHeaderIsPresent);
     }
 
     public function setUp (): void
