@@ -3,8 +3,11 @@
 namespace Tests\Unit;
 
 use Farrugia\Api\Api;
+use Farrugia\Api\ApiException;
 use Farrugia\Api\CurlException;
+use Mockery;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 class ApiTest extends TestCase
 {
@@ -45,7 +48,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function postDataWithWrongUrl ()
+    public function post_data_with_wrong_url ()
     {
         $this->expectException(CurlException::class);
         $this->api
@@ -72,7 +75,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function putDataWithWrongUrl ()
+    public function put_data_with_wrong_url ()
     {
         $this->expectException(CurlException::class);
         $this->api
@@ -86,7 +89,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function putData ()
+    public function put_data ()
     {
         $oldTitle = $this->api
             ->setUrl('https://jsonplaceholder.typicode.com/')
@@ -105,12 +108,56 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function deleteData ()
+    public function delete_data ()
     {
         $data = $this->api
             ->setUrl('https://jsonplaceholder.typicode.com/')
             ->delete('posts/1');
         $this->assertEmpty((array)$data);
+    }
+
+    /** @test */
+    public function test_set_incorrect_path_to_certificat ()
+    {
+        $this->expectException(ApiException::class);
+
+        $api = new Api();
+        $api->setPathToCertificat('incorrect_path');
+    }
+
+    /** @test */
+    public function test_set_correct_path_to_certificat ()
+    {
+        $api = new Api();
+
+        $reflectionApi = new \ReflectionClass(Api::class);
+
+        $pathToCertificatProperty = $reflectionApi->getProperty('pathToCertificat');
+        $pathToCertificatProperty->setAccessible(true);
+        $pathToCertificatProperty->setValue($api, 'correct_path');
+
+        $method = $reflectionApi->getMethod('generateOptions');
+        $method->setAccessible(true);
+
+        $options = $method->invokeArgs($api, ['GET', [], []]);
+
+        $this->assertEquals('correct_path', $options[CURLOPT_CAINFO]);
+    }
+
+    /** @test */
+    public function test_set_token ()
+    {
+        $api = new Api();
+
+        $api->setToken('token', 'bearer');
+
+        $reflectionApi = new ReflectionClass(Api::class);
+        $method = $reflectionApi->getMethod('generateOptions');
+        $method->setAccessible(true);
+
+        $options = $method->invokeArgs($api, ['GET', [], []]);
+
+        $this->assertTrue(in_array('Authorization: BEARER token', $options[CURLOPT_HEADER]));
     }
 
     public function setUp (): void

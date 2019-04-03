@@ -195,7 +195,7 @@ class Api
     public function setToken (?string $token, string $type = 'BASIC'): Api
     {
         if (!is_null($token)) {
-            $this->token = [$type, $token];
+            $this->token = [strtoupper($type), $token];
         }
         else {
             $this->token = null;
