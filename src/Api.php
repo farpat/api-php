@@ -1,6 +1,6 @@
 <?php
 
-namespace Farrugia\Api;
+namespace Farpat\Api;
 
 
 use stdClass;

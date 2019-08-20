@@ -18,7 +18,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Farrugia\\Api\\": "src/"
+      "Farpat\\Api\\": "src/"
     }
   },
   "autoload-dev": {

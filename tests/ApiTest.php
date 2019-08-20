@@ -2,10 +2,9 @@
 
 namespace Tests\Unit;
 
-use Farrugia\Api\Api;
-use Farrugia\Api\ApiException;
-use Farrugia\Api\CurlException;
-use Mockery;
+use Farpat\Api\Api;
+use Farpat\Api\ApiException;
+use Farpat\Api\CurlException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -34,7 +33,6 @@ class ApiTest extends TestCase
             ->get('posts/1');
 
         $this->assertInstanceOf(\stdClass::class, $data);
-        $this->assertNotEmpty($data);
         $this->assertIsInt($data->userId);
 
         $data = $this->api->get('posts');
@@ -61,7 +59,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function postData ()
+    public function post_data ()
     {
         $data = $this->api
             ->setUrl('https://jsonplaceholder.typicode.com')
@@ -102,7 +100,6 @@ class ApiTest extends TestCase
                 "body" => 'bar',
                 "userId" => 1
             ]);
-        $this->assertNotEmpty($data);
         $this->assertEquals('toto', $data->title);
         $this->assertNotEquals($oldTitle, $data->title);
     }
@@ -117,7 +114,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function test_set_incorrect_path_to_certificat ()
+    public function set_incorrect_path_to_certificat ()
     {
         $this->expectException(ApiException::class);
 
@@ -126,7 +123,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function test_set_correct_path_to_certificat ()
+    public function set_correct_path_to_certificat ()
     {
         $api = new Api();
 
@@ -145,7 +142,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function test_set_token ()
+    public function set_token ()
     {
         $api = new Api();
 
@@ -161,7 +158,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function test_no_set_path_to_certificat ()
+    public function no_set_path_to_certificat ()
     {
         $api = (new Api())->setPathToCertificat(null);
 
@@ -176,7 +173,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function test_no_set_token ()
+    public function no_set_token ()
     {
         $api = (new Api())->setToken(null);
 
@@ -188,9 +185,9 @@ class ApiTest extends TestCase
 
         $authorizationHeaderIsPresent = false;
         foreach($options[CURLOPT_HTTPHEADER] as $header) {
-            if (strpos($header, 'Authorization:')) {
-            $authorizationHeaderIsPresent = true;
-            break;
+            if (strpos($header, 'Authorization:') !== false) {
+                $authorizationHeaderIsPresent = true;
+                break;
             }
         }
 
