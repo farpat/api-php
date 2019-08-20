@@ -1,6 +1,7 @@
 {
   "name": "farpat/api",
   "description": "API Client in PHP",
+  "version": "1.0.1",
   "type": "library",
   "require-dev": {
     "phpunit/phpunit": "^8.0"
