@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/farpat/api.svg?branch=master)](https://travis-ci.org/farpat/api)
+[![Build Status](https://travis-ci.org/farpat/api-php.svg?branch=master)](https://travis-ci.org/farpat/api-php)
 
 # Installation
 `composer require farpat/api`
