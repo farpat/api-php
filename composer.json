@@ -1,7 +1,7 @@
 {
   "name": "farpat/api",
   "description": "API Client in PHP",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "library",
   "require-dev": {
     "phpunit/phpunit": "^8.0",
@@ -10,7 +10,7 @@
   "authors": [
     {
       "name": "Patrick FARRUGIA",
-      "email": "farrugiapatrick@free.fr"
+      "email": "p.farrugia@outlook.fr"
     }
   ],
   "require": {

@@ -145,12 +145,12 @@ class Api
      * @throws ApiException
      * @throws CurlException
      */
-    public function get(string $endpoint, array $data, array $headers = [])
+    public function get(string $endpoint, array $data = [], array $headers = [])
     {
         return $this->api($endpoint, 'GET', $data, $headers);
     }
 
-    public function delete(string $endpoint, array $data, array $headers = [])
+    public function delete(string $endpoint, array $data = [], array $headers = [])
     {
         return $this->api($endpoint, 'DELETE', $data, $headers);
     }
@@ -172,7 +172,7 @@ class Api
      * @return Api
      * @throws ApiException
      */
-    public function setPathToCertificat(?string $pathToCertificat): self
+    public function setPathToCertificat(string $pathToCertificat): self
     {
         if (!is_null($pathToCertificat) && !is_file($pathToCertificat)) {
             throw new ApiException('The certificat path << ' . $pathToCertificat . ' >> does not exist!');
@@ -185,6 +185,7 @@ class Api
     public function setUserPassword(string $username, string $password)
     {
         $this->userpwd = [$username, $password];
+        return $this;
     }
 
     public function setToken(string $token, string $type = 'BASIC'): self

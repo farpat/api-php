@@ -38,7 +38,7 @@ class ApiTest extends TestCase
         $data = $this->api->get('posts');
         $this->assertNotEmpty($data);
 
-        $data = $this->api->get('comments?postId=2');
+        $data = $this->api->get('comments', ['postId' => 2]);
         $this->assertEquals(2, $data[0]->postId);
 
         $data = $this->api->get('comments?postId=fake');
@@ -52,8 +52,8 @@ class ApiTest extends TestCase
         $this->api
             ->setUrl('httpsd//jsonplaceholder.typicode.com')
             ->post('posts', [
-                "title" => 'foo',
-                "body" => 'bar',
+                "title"  => 'foo',
+                "body"   => 'bar',
                 "userId" => 1
             ]);
     }
@@ -64,8 +64,8 @@ class ApiTest extends TestCase
         $data = $this->api
             ->setUrl('https://jsonplaceholder.typicode.com')
             ->post('posts', [
-                "title" => 'foo',
-                "body" => 'bar',
+                "title"  => 'foo',
+                "body"   => 'bar',
                 "userId" => 1
             ]);
         $this->assertNotEmpty($data);
@@ -79,9 +79,9 @@ class ApiTest extends TestCase
         $this->api
             ->setUrl('httpsd//jsonplaceholder.typicode.com/')
             ->put('posts/1', [
-                "id" => 1,
-                "title" => 'foo',
-                "body" => 'bar',
+                "id"     => 1,
+                "title"  => 'foo',
+                "body"   => 'bar',
                 "userId" => 1
             ]);
     }
@@ -95,9 +95,9 @@ class ApiTest extends TestCase
 
         $data = $this->api
             ->put('posts/1', [
-                "id" => 1,
-                "title" => 'toto',
-                "body" => 'bar',
+                "id"     => 1,
+                "title"  => 'toto',
+                "body"   => 'bar',
                 "userId" => 1
             ]);
         $this->assertEquals('toto', $data->title);
