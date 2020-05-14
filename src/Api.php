@@ -35,7 +35,7 @@ class Api
      * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
-    public function post(string $endPoint, array $data, array $headers = [])
+    public function post(string $endPoint, $data, array $headers = [])
     {
         return $this->api($endPoint, 'POST', $data, $headers);
     }
