@@ -21,6 +21,12 @@ class Api
     private $token = null;
 
     /**
+     * @var array|null
+     * [user, password]
+     */
+    private $userpwd = null;
+
+    /**
      * @param string $endPoint
      * @param array $data
      *
@@ -29,26 +35,19 @@ class Api
      * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
-    public function post (string $endPoint, array $data, array $headers = [])
+    public function post(string $endPoint, array $data, array $headers = [])
     {
         return $this->api($endPoint, 'POST', $data, $headers);
     }
 
     /**
-     * @param string $endPoint
-     * @param string $method
-     * @param array|null $data
-     *
-     * @param array $headers
-     *
      * @return stdClass|array|null
-     * @throws CurlException|ApiException
      */
-    private function api (string $endPoint, string $method, array $data = [], array $headers = [])
+    private function api(string $endPoint, string $method, array $data = [], array $headers = [])
     {
         $ch = curl_init($this->url . $endPoint);
 
-        curl_setopt_array($ch, $this->generateOptions($method, $data, $headers));
+        curl_setopt_array($ch, $this->generateOptions($this->url . $endPoint, $method, $data, $headers));
 
         if (!($response = curl_exec($ch))) {
             throw new CurlException(curl_error($ch), curl_errno($ch));
@@ -65,27 +64,27 @@ class Api
         return $data;
     }
 
-    /**
-     * @param string $method
-     * @param array $data
-     * @param array $headers
-     *
-     * @return array
-     */
-    private function generateOptions (string $method, array $data, array $headers): array
+    private function generateOptions(string $url, string $method, array $data, array $headers): array
     {
         $options = [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => $headers
+            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_URL            => $url
         ];
 
         switch ($method) {
+            case 'GET':
+            case 'DELETE':
+                if (!empty($data)) {
+                    $options[CURLOPT_URL] = '?' . http_build_query($data);
+                }
+                $options[CURLOPT_CUSTOMREQUEST] = $method;
+                break;
             case 'POST':
+            case 'PATCH':
             case 'PUT':
                 $options[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
                 $options[CURLOPT_POSTFIELDS] = json_encode($data);
-            case 'DELETE':
-                $options[CURLOPT_CUSTOMREQUEST] = $method;
                 break;
         }
 
@@ -94,10 +93,14 @@ class Api
             $options[CURLOPT_HTTPHEADER][] = "Authorization: $type $token";
         }
 
-        if (!is_null($this->pathToCertificat)) {
-            $options[CURLOPT_CAINFO] =  $this->pathToCertificat;
+        if (!is_null($this->userpwd)) {
+            [$username, $password] = $this->userpwd;
+            $options[CURLOPT_USERPWD] = "$username:$password";
         }
-        else {
+
+        if (!is_null($this->pathToCertificat)) {
+            $options[CURLOPT_CAINFO] = $this->pathToCertificat;
+        } else {
             $options[CURLOPT_SSL_VERIFYHOST] = 0;
             $options[CURLOPT_SSL_VERIFYPEER] = 0;
         }
@@ -114,7 +117,7 @@ class Api
      * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
-    public function put (string $endPoint, array $data, array $headers = [])
+    public function put(string $endPoint, array $data, array $headers = [])
     {
         return $this->api($endPoint, 'PUT', $data, $headers);
     }
@@ -128,7 +131,7 @@ class Api
      * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
-    public function patch (string $endPoint, array $data, array $headers = [])
+    public function patch(string $endPoint, array $data, array $headers = [])
     {
         return $this->api($endPoint, 'PATCH', $data, $headers);
     }
@@ -142,20 +145,14 @@ class Api
      * @throws ApiException
      * @throws CurlException
      */
-    public function get (string $endpoint, array $headers = [])
+    public function get(string $endpoint, array $data, array $headers = [])
     {
-        return $this->api($endpoint, 'GET', [], $headers);
+        return $this->api($endpoint, 'GET', $data, $headers);
     }
 
-    /**
-     * @param string $endpoint
-     *
-     * @return stdClass|array|null
-     * @throws CurlException|ApiException
-     */
-    public function delete (string $endpoint, array $headers = [])
+    public function delete(string $endpoint, array $data, array $headers = [])
     {
-        return $this->api($endpoint, 'DELETE', [], $headers);
+        return $this->api($endpoint, 'DELETE', $data, $headers);
     }
 
     /**
@@ -163,7 +160,7 @@ class Api
      *
      * @return Api
      */
-    public function setUrl (string $url): Api
+    public function setUrl(string $url): self
     {
         $this->url = $url[-1] === '/' ? $url : $url . '/';
         return $this;
@@ -175,31 +172,24 @@ class Api
      * @return Api
      * @throws ApiException
      */
-    public function setPathToCertificat (?string $pathToCertificat): Api
+    public function setPathToCertificat(?string $pathToCertificat): self
     {
         if (!is_null($pathToCertificat) && !is_file($pathToCertificat)) {
-            throw new ApiException('The certificat path << ' . $pathToCertificat. ' >> does not exist!');
+            throw new ApiException('The certificat path << ' . $pathToCertificat . ' >> does not exist!');
         }
 
         $this->pathToCertificat = $pathToCertificat;
         return $this;
-}
+    }
 
-    /**
-     * @param string|null $token
-     *
-     * @param string $type
-     *
-     * @return Api
-     */
-    public function setToken (?string $token, string $type = 'BASIC'): Api
+    public function setUserPassword(string $username, string $password)
     {
-        if (!is_null($token)) {
-            $this->token = [strtoupper($type), $token];
-        }
-        else {
-            $this->token = null;
-        }
+        $this->userpwd = [$username, $password];
+    }
+
+    public function setToken(string $token, string $type = 'BASIC'): self
+    {
+        $this->token = [strtoupper($type), $token];
         return $this;
-}
+    }
 }
