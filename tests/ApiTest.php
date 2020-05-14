@@ -86,6 +86,19 @@ class ApiTest extends TestCase
     }
 
     /** @test */
+    public function post_data_with_data_formatted_in_string()
+    {
+        $method = $this->reflectionApi->getMethod('generateOptions');
+        $method->setAccessible(true);
+
+        $options = $method->invokeArgs($this->api,
+            ['url', 'POST', 'data_in_string', []]);
+
+        $this->assertEquals('data_in_string', $options[CURLOPT_POSTFIELDS]);
+    }
+
+
+    /** @test */
     public function put_data_with_wrong_url()
     {
         $this->expectException(CurlException::class);

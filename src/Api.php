@@ -40,10 +40,7 @@ class Api
         return $this->api($endPoint, 'POST', $data, $headers);
     }
 
-    /**
-     * @return stdClass|array|null
-     */
-    private function api(string $endPoint, string $method, array $data = [], array $headers = [])
+    private function api(string $endPoint, string $method, $data = [], array $headers = [])
     {
         $ch = curl_init();
 
@@ -58,7 +55,7 @@ class Api
         return json_decode($response);
     }
 
-    private function generateOptions(string $url, string $method, array $data, array $headers): array
+    private function generateOptions(string $url, string $method, $data = [], array $headers): array
     {
         $headersInCurl = [];
 
@@ -85,8 +82,12 @@ class Api
             case 'POST':
             case 'PATCH':
             case 'PUT':
-                $options[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
-                $options[CURLOPT_POSTFIELDS] = json_encode($data);
+                if (is_array($data)) {
+                    $options[CURLOPT_HTTPHEADER][] = 'Content-Type: application/json';
+                    $options[CURLOPT_POSTFIELDS] = json_encode($data);
+                } else {
+                    $options[CURLOPT_POSTFIELDS] = $data;
+                }
                 break;
         }
 
@@ -112,41 +113,32 @@ class Api
 
     /**
      * @param string $endPoint
-     * @param array $data
+     * @param array|string $data
      *
      * @param array $headers
      *
      * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
-    public function put(string $endPoint, array $data, array $headers = [])
+    public function put(string $endPoint, $data, array $headers = [])
     {
         return $this->api($endPoint, 'PUT', $data, $headers);
     }
 
     /**
      * @param string $endPoint
-     * @param array $data
+     * @param array|string $data
      *
      * @param array $headers
      *
      * @return stdClass|array|null
      * @throws CurlException|ApiException
      */
-    public function patch(string $endPoint, array $data, array $headers = [])
+    public function patch(string $endPoint, $data, array $headers = [])
     {
         return $this->api($endPoint, 'PATCH', $data, $headers);
     }
 
-    /**
-     * @param string $endpoint
-     *
-     * @param array $headers
-     *
-     * @return stdClass|array|null
-     * @throws ApiException
-     * @throws CurlException
-     */
     public function get(string $endpoint, array $data = [], array $headers = [])
     {
         return $this->api($endpoint, 'GET', $data, $headers);
