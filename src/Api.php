@@ -45,7 +45,7 @@ class Api
      */
     private function api(string $endPoint, string $method, array $data = [], array $headers = [])
     {
-        $ch = curl_init($this->url . $endPoint);
+        $ch = curl_init();
 
         curl_setopt_array($ch, $this->generateOptions($this->url . $endPoint, $method, $data, $headers));
 
@@ -55,13 +55,7 @@ class Api
 
         curl_close($ch);
 
-        $data = json_decode($response);
-
-        if (empty($data)) {
-            return null;
-        }
-
-        return $data;
+        return json_decode($response);
     }
 
     private function generateOptions(string $url, string $method, array $data, array $headers): array
@@ -76,7 +70,7 @@ class Api
             case 'GET':
             case 'DELETE':
                 if (!empty($data)) {
-                    $options[CURLOPT_URL] = '?' . http_build_query($data);
+                    $options[CURLOPT_URL] .= '?' . http_build_query($data);
                 }
                 $options[CURLOPT_CUSTOMREQUEST] = $method;
                 break;

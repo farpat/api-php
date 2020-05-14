@@ -78,30 +78,17 @@ class ApiTest extends TestCase
         $this->expectException(CurlException::class);
         $this->api
             ->setUrl('httpsd//jsonplaceholder.typicode.com/')
-            ->put('posts/1', [
-                "id"     => 1,
-                "title"  => 'foo',
-                "body"   => 'bar',
-                "userId" => 1
-            ]);
+            ->put('posts/1', ["id" => 1, "title" => 'foo', "body" => 'bar', "userId" => 1]);
     }
 
     /** @test */
     public function put_data()
     {
-        $oldTitle = $this->api
-            ->setUrl('https://jsonplaceholder.typicode.com/')
-            ->get('posts/1')->title;
-
         $data = $this->api
-            ->put('posts/1', [
-                "id"     => 1,
-                "title"  => 'toto',
-                "body"   => 'bar',
-                "userId" => 1
-            ]);
-        $this->assertEquals('toto', $data->title);
-        $this->assertNotEquals($oldTitle, $data->title);
+            ->setUrl('https://jsonplaceholder.typicode.com/')
+            ->put('posts/1', ["id" => 1, "title" => 'toto', "body" => 'bar', "userId" => 1]);
+
+        $this->assertInstanceOf(\stdClass::class, $data);
     }
 
     /** @test */
@@ -118,25 +105,22 @@ class ApiTest extends TestCase
     {
         $this->expectException(ApiException::class);
 
-        $api = new Api();
-        $api->setPathToCertificat('incorrect_path');
+        $this->api->setPathToCertificat('incorrect_path');
     }
 
     /** @test */
     public function set_correct_path_to_certificat()
     {
-        $api = new Api();
-
         $reflectionApi = new \ReflectionClass(Api::class);
 
         $pathToCertificatProperty = $reflectionApi->getProperty('pathToCertificat');
         $pathToCertificatProperty->setAccessible(true);
-        $pathToCertificatProperty->setValue($api, 'correct_path');
+        $pathToCertificatProperty->setValue($this->api, 'correct_path');
 
         $method = $reflectionApi->getMethod('generateOptions');
         $method->setAccessible(true);
 
-        $options = $method->invokeArgs($api, ['GET', [], []]);
+        $options = $method->invokeArgs($this->api, ['url', 'GET', [], []]);
 
         $this->assertEquals('correct_path', $options[CURLOPT_CAINFO]);
     }
@@ -144,14 +128,12 @@ class ApiTest extends TestCase
     /** @test */
     public function set_userpassword()
     {
-        $api = new Api();
-
-        $api->setUserPassword('username', 'password');
+        $this->api->setUserPassword('username', 'password');
 
         $method = $this->reflectionApi->getMethod('generateOptions');
         $method->setAccessible(true);
 
-        $options = $method->invokeArgs($api, ['GET', [], []]);
+        $options = $method->invokeArgs($this->api, ['url', 'GET', [], []]);
 
         $this->assertEquals('username:password', $options[CURLOPT_USERPWD]);
     }
@@ -159,14 +141,12 @@ class ApiTest extends TestCase
     /** @test */
     public function set_token()
     {
-        $api = new Api();
-
-        $api->setToken('token', 'bearer');
+        $this->api->setToken('token', 'bearer');
 
         $method = $this->reflectionApi->getMethod('generateOptions');
         $method->setAccessible(true);
 
-        $options = $method->invokeArgs($api, ['GET', [], []]);
+        $options = $method->invokeArgs($this->api, ['url', 'GET', [], []]);
 
         $this->assertTrue(in_array('Authorization: BEARER token', $options[CURLOPT_HTTPHEADER]));
     }
@@ -174,13 +154,11 @@ class ApiTest extends TestCase
     /** @test */
     public function no_set_path_to_certificat()
     {
-        $api = (new Api())->setPathToCertificat(null);
-
         $reflectionApi = new ReflectionClass(Api::class);
         $method = $reflectionApi->getMethod('generateOptions');
         $method->setAccessible(true);
 
-        $options = $method->invokeArgs($api, ['GET', [], []]);
+        $options = $method->invokeArgs($this->api, ['url', 'GET', [], []]);
 
         $this->assertEquals(0, $options[CURLOPT_SSL_VERIFYHOST]);
         $this->assertEquals(0, $options[CURLOPT_SSL_VERIFYPEER]);
@@ -189,12 +167,10 @@ class ApiTest extends TestCase
     /** @test */
     public function no_set_token()
     {
-        $api = new Api();
-
         $method = $this->reflectionApi->getMethod('generateOptions');
         $method->setAccessible(true);
 
-        $options = $method->invokeArgs($api, ['GET', [], []]);
+        $options = $method->invokeArgs($this->api, ['url', 'GET', [], []]);
 
         $authorizationHeaderIsPresent = false;
         foreach ($options[CURLOPT_HTTPHEADER] as $header) {
