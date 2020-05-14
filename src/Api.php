@@ -60,9 +60,17 @@ class Api
 
     private function generateOptions(string $url, string $method, array $data, array $headers): array
     {
+        $headersInCurl = [];
+
+        if (!empty($headers)) {
+            foreach ($headers as $headerKey => $headerValue) {
+                $headersInCurl[] = "$headerKey: $headerValue";
+            }
+        }
+
         $options = [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_HTTPHEADER     => $headersInCurl,
             CURLOPT_URL            => $url
         ];
 

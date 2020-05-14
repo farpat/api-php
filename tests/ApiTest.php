@@ -73,6 +73,19 @@ class ApiTest extends TestCase
     }
 
     /** @test */
+    public function post_data_with_headers()
+    {
+        $method = $this->reflectionApi->getMethod('generateOptions');
+        $method->setAccessible(true);
+
+        $options = $method->invokeArgs($this->api,
+            ['url', 'POST', [], ['Accept' => 'application/json', 'Accept-Language' => 'en_US']]);
+
+        $this->assertTrue(in_array('Accept: application/json', $options[CURLOPT_HTTPHEADER]));
+        $this->assertTrue(in_array('Accept-Language: en_US', $options[CURLOPT_HTTPHEADER]));
+    }
+
+    /** @test */
     public function put_data_with_wrong_url()
     {
         $this->expectException(CurlException::class);
