@@ -3,8 +3,6 @@
 namespace Farpat\Api;
 
 
-use stdClass;
-
 class Api
 {
     private $url = '/';
@@ -27,24 +25,22 @@ class Api
     private $userpwd = null;
 
     /**
-     * @param string $endPoint
-     * @param array $data
-     *
-     * @param array $headers
-     *
-     * @return stdClass|array|null
-     * @throws CurlException|ApiException
+     * @throws CurlException
      */
-    public function post(string $endPoint, $data, array $headers = [])
+    public function post(?string $endPoint, array $data = [], array $headers = [])
     {
         return $this->api($endPoint, 'POST', $data, $headers);
     }
 
-    private function api(string $endPoint, string $method, $data = [], array $headers = [])
+    private function api(?string $endPoint, string $method, array $data, array $headers)
     {
         $ch = curl_init();
 
-        curl_setopt_array($ch, $this->generateOptions($this->url . $endPoint, $method, $data, $headers));
+        $url = $this->url . ($endPoint ?? '');
+        if ($url['-1'] === '/') {
+            $url = substr($url, 0, -1);
+        }
+        curl_setopt_array($ch, $this->generateOptions($url, $method, $data, $headers));
 
         if (!($response = curl_exec($ch))) {
             throw new CurlException(curl_error($ch), curl_errno($ch));
@@ -55,7 +51,7 @@ class Api
         return json_decode($response);
     }
 
-    private function generateOptions(string $url, string $method, $data = [], array $headers): array
+    private function generateOptions(string $url, string $method, array $data, array $headers): array
     {
         $headersInCurl = [];
 
@@ -112,39 +108,33 @@ class Api
     }
 
     /**
-     * @param string $endPoint
-     * @param array|string $data
-     *
-     * @param array $headers
-     *
-     * @return stdClass|array|null
-     * @throws CurlException|ApiException
+     * @throws CurlException
      */
-    public function put(string $endPoint, $data, array $headers = [])
+    public function put(?string $endPoint, $data, array $headers = [])
     {
         return $this->api($endPoint, 'PUT', $data, $headers);
     }
 
     /**
-     * @param string $endPoint
-     * @param array|string $data
-     *
-     * @param array $headers
-     *
-     * @return stdClass|array|null
-     * @throws CurlException|ApiException
+     * @throws CurlException
      */
-    public function patch(string $endPoint, $data, array $headers = [])
+    public function patch(?string $endPoint, array $data = [], array $headers = [])
     {
         return $this->api($endPoint, 'PATCH', $data, $headers);
     }
 
-    public function get(string $endpoint, array $data = [], array $headers = [])
+    /**
+     * @throws CurlException
+     */
+    public function get(?string $endpoint = null, array $data = [], array $headers = [])
     {
         return $this->api($endpoint, 'GET', $data, $headers);
     }
 
-    public function delete(string $endpoint, array $data = [], array $headers = [])
+    /**
+     * @throws CurlException
+     */
+    public function delete(?string $endpoint = null, array $data = [], array $headers = [])
     {
         return $this->api($endpoint, 'DELETE', $data, $headers);
     }

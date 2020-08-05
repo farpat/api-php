@@ -24,8 +24,8 @@ curl GET https://my-site.com/users
 */
 
 $posts = (new Api)
-    ->setUrl('https://jsonplaceholder.typicode.com')
-    ->get('comments', ['postId' => 2]);
+    ->setUrl('https://jsonplaceholder.typicode.com/comments')
+    ->get(null, ['postId' => 2]);
 /*
 equivalent to: 
 curl GET https://jsonplaceholder.typicode.com/comments?postId=2
@@ -35,7 +35,7 @@ $data = ['data-key-1' => 'data-value-1', 'data-key-2' => 'data-value-2'];
 $headers = ['Header-1' => 'header-value-1', 'Header-2' => 'header-value-2'];
 $post = (new Api)
     ->setUrl('https://jsonplaceholder.typicode.com')
-    ->put('posts/1', $data, $headers);
+    ->put('/posts/1', $data, $headers);
 /*
 equivalent to:
 CURL PUT https://jsonplaceholder.typicode.com
